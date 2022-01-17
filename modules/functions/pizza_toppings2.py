@@ -1,3 +1,4 @@
+import fire
 import questionary
 def pizza_topps (pz_toppings):        
     while pz_toppings == 'active':

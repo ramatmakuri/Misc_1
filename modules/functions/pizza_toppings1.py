@@ -1,3 +1,4 @@
+import fire
 import questionary
 
 def pizza_required (pz_top): 

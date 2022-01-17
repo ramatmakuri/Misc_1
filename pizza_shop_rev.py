@@ -46,9 +46,10 @@ def run ():
     complete = pz_order_paid (pz_pay_confirm)
 
 run()
-
+if __name__ == '--main--':
+    fire.Fire()
 #next_step = input ("Do you want to order pizza again?:")
 #if next_step == 'y':
 #    pizza_order ()
 #else:
-    #print ("Thank you, Looking forard to serve you again!")
+#print ("Thank you, Looking forard to serve you again!")
