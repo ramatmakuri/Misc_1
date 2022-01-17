@@ -1,157 +1,51 @@
+"""Pizza Order Processing Application.
+This is a command line application to collect and process pizza orders""" 
+
 import fire
 import questionary
-
-# Modified the code to include questionary checkbox rather than a for loop
-def pizza_required (): 
-    toppings = ['Mushroom', 'Pepperoni', 'Basil', 'Pineapple', 'Extra cheese', 'Black olives', 'Tomatoes']
-    global toppings_num
-    toppings_num =  0
-    global instock
-    global requested_topping
-    instock = []
-    topping = []
-    top = []
-    instock =  questionary.checkbox (f"select the toppings you require",  choices =  ['Mushroom', 'Pepperoni', 'Basil', 'Pineapple', 'Extra cheese', 'Black olives', 'Tomatoes']).ask()
-    a_set = set(toppings)
-    b_set = set(instock)
-    if len (a_set.intersection(b_set))>0:
-        print (f"adding {topping}")
-        top.append (topping)
-        toppings_num += len(instock) 
-        print (f"Number of toppings added is equal to {toppings_num}")
-        order_confirm ()
-    else: 
-        return ("No toppings are added") 
-# Removed the for loop as questionary is incorporated
-"""def pizza_required (): 
-    toppings = ['mushroom', 'pepperoni', 'basil', 'pineapple', 'extra cheese', 'black olives', 'tomatoes']
-    global toppings_num
-    toppings_num =  0
-    global top
-    global requested_topping
-    topping = []
-    top = []
-    for topping in toppings:
-        instock =  questionary.confirm (f'do you want  {topping}?: ').ask()
-        if instock == True:
-            print (f"adding {topping}")
-            top.append (topping)
-            toppings_num += 1 
-        else: print (f"topping {topping}, is not added")
-    print (f"Number of toppings added is equal to {toppings_num}")
-    order_confirm ()"""
-
-
-def order_pricing ():
-    global price_calc 
-    global sales_tax_rate
-    global tax
-    price_calc = float(0)
-    price_calc_wtax = float(0)
-    tax = float(0)
-    price_list_size = {
-    "XL": int(45),
-    "L" : int(40),
-    "M" : int(35),
-    "S" : int(30),
-    }    
-    price_per_topping = int(2)
-    sales_tax_rate =  float(.08) 
-    price_calc += ((price_list_size["S"] * s_num_pizzas + price_list_size["M"] * m_num_pizzas + price_list_size["L"] * l_num_pizzas + price_list_size["XL"] * xl_num_pizzas)+ (price_per_topping * toppings_num))
-    tax = price_calc * sales_tax_rate
-    price_calc_wtax = price_calc + tax 
-    print (f"The price for yor Pizza is $ {price_calc}")
-    print (f"The tax on your Pizza is $ {tax}")
-    print (f"The total price for yor Pizza is $ {price_calc_wtax}")
-    pz_order_paid ()
-
-def order_cancellation ():
-     order_placed = "n"
-     s_num_pizzas = int(0)
-     m_num_pizzas = int(0)
-     l_num_pizzas = int(0)
-     xl_num_pizzas = int(0)
-     toppings_num = int(0)
-
-def order_confirm (): 
-    pz_order_confirm = questionary.confirm(f"Please confirm the order comprising of {size} Pizza with extra {instock}? ").ask()
-    if pz_order_confirm == True:
-        order_pricing ()
-    else:
-        order_cancellation ()
-                      
-def pz_order_paid (): 
-    order_paid = questionary.confirm("Did the customer pay for the order?: ").ask()
-    if order_paid == True:
-        print (f"Your order is confirmed. Finished making your {size} Pizza with extra {instock}")
-    else: 
-        order_cancellation ()
-
-def pizza_not_required ():
-            print ("Your Pizza without extra toppings is ready for your enjoyment!")
+from pathlib import Path
+from modules.functions.pizza_sizes1 import pizza_sizes
+from modules.functions.pizza_toppings2 import pizza_topps
+from modules.functions.pizza_toppings1 import pizza_required
+from modules.functions.pizza_order1 import (
+    order_confirm, 
+    pz_order_paid, 
+    toppings_not_required
+    )
+from modules.calculations import order_pricing
 
 def pizza_order (): 
     pizza_order = questionary.confirm("Hello, this is R&H Pizza! Would you like a Pizza this fine afternoon?").ask()
     if pizza_order == True:
-        print ("Excellent! We have a small (S), Medium (M), Large (L) and Extra-Large (XL) Pizzas.")
-        pizza_sizes ()
+        print ("Excellent! We have a Small (S), Medium (M), Large (L), and Extra-Large (XL) Pizzas.")
+        return('active')
     else:
-        return ("No issues, you can come back later on when you want a Pizza!")     
+        print("No issues, you can come back later on when you want a Pizza!")
+        return ()
 
-def pizza_sizes ():
-    av_sizes = ['Small','Medium','Large','Extra Large',]
-    order_s = "active"
-    global size 
-    global s_num_pizzas
-    s_num_pizzas = 0
-    global m_num_pizzas
-    m_num_pizzas = 0
-    global l_num_pizzas
-    l_num_pizzas = 0
-    global xl_num_pizzas 
-    xl_num_pizzas = 0
-    while  order_s == "active":
-        size = questionary.select ("What size Pizza would you like?:", choices = ['Small', 'Medium', 'Large', 'Extra Large']).ask()
-        size = size.capitalize()
-        if size in av_sizes:            
-            if size == 'Small': 
-                s_num_pizzas +=1
-            elif size == 'Medium':
-                m_num_pizzas +=1
-            elif size == 'Large':
-                l_num_pizzas +=1
-            elif size == 'Extra Large':
-                xl_num_pizzas +=1
-            print (f"Great! We will check on Toppings next")
-            order_s = "inactive"
-            pizza_toppings ()    
-        else:
-            print ("Sorry, R&H serves only specified sizes. Please select an available Pizza size and reorder.")
-            recheck = questionary.confirm("Would you want to select an available size pizza?: ").ask()
-            if recheck == True:
-                order_s = "active"
-            else: 
-                order_s = "inactive" 
+"""The main function for running the script."""
+def run ():
+    order_s = pizza_order()
+    if order_s == 'active':
+        pz_toppings,s_num_pizzas, m_num_pizzas, l_num_pizzas, xl_num_pizzas  = pizza_sizes(order_s)
+    else: 
+        return()
+    if pz_toppings == 'active':
+        pz_top = pizza_topps(pz_toppings)
+    else: 
+        toppings_not_required ()
+    if pz_top == 'active':
+        pz_order, toppings_num = pizza_required(pz_top)
+    else: 
+        return()
+    pz_payment = order_confirm(pz_order)
+    if pz_order == 'active':
+        pz_pay_confirm = order_pricing(pz_payment, s_num_pizzas, m_num_pizzas, l_num_pizzas, xl_num_pizzas, toppings_num)
+    else:
+        return ()
+    complete = pz_order_paid (pz_pay_confirm)
 
-def pizza_toppings ():        
-        toppings_reqd = questionary.confirm("Do you need extra toppings on your Pizza?").ask()
-        if toppings_reqd == True:
-            pizza_required ()
-        else:
-            confirmation = questionary.confirm ("Are you sure that you do not want toppings on your Pizza? : "). ask()
-            if confirmation == True:
-                order_confirm ()
-            else: 
-                pizza_required () 
-  
-size = [] 
-p_size = ''       
-top = []
-toppings_num = 0
-instock = []
-pizza_order ()
-
-
+run()
 
 #next_step = input ("Do you want to order pizza again?:")
 #if next_step == 'y':
